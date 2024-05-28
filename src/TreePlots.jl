@@ -1,12 +1,11 @@
 module TreePlots
 
-import MakieCore
-import RecipesBase
+using Reexport
 using Statistics: mean
 using AbstractTrees: children, parent, PreOrderDFS, PostOrderDFS
-# const IEXIST = true
+
 const LAYOUTS = (:dendrogram, :circular, :radial)
-const BRANCHTYPES = (:rightangle, :straight)
+const BRANCHTYPES = (:square, :straight)
 
 """
     distance(node)
@@ -20,73 +19,71 @@ distance(node) = 1
 isleaf(n) = (isempty ∘ children)(n)
 leafcount(t) = mapreduce(isleaf, +, PreOrderDFS(t))
 
-
-MakieCore.@recipe(TreePlot, tree) do scene
-    # attr = MakieCore.Attributes(
-    #     solid_color=:black,
-    # )
-    # MakieCore.generic_plot_attributes!(attr)
-    # MakieCore.colormap_attributes!(attr, MakieCore.theme(scene, :colormap))
-end
-
-function MakieCore.plot!(tplot::TreePlot)
-    # @debug "hello world"
-    # MakieCore.scatter!(tplot, rand(10))
-    @debug tplot.tree
-    nleaves = leafcount(tplot.tree[])
-    toangle(y) = 2pi * (y / (nleaves))
-    nodecoords = nodepositions(tplot.tree[])
-    @debug nodecoords
-    segs = makesegments(nodecoords, tplot.tree[])
-    @debug "segs: " segs
-
-    @debug typeof(tplot.transformation.transform_func.val)
-    if occursin("Polar", string(tplot.transformation.transform_func[]))
-        segs = map(segs) do seg
-            [(toangle(y), x) for (x, y) in seg]
-        end
-    end
-    @debug "segs: " segs
-    MakieCore.lines!(tplot, reduce(vcat, segs); color=tplot.solid_color)
-    # MakieCore.series!(tplot, segs; solid_color=:black)
-end
-
-
-
-function _coord_postwalk!(r, n, d, i)
-    if isleaf(n)
-        i[begin] += 1
-        return r[n] = (d, only(i))
-    end
-    cs = map(children(n)) do c
-        _coord_postwalk!(r, c, distance(n) + d, i)
-    end
-    h = mean(last.(cs))
-    return r[n] = (d, h)
-end
-
-function nodepositions(t)
+function nodepositions(tree; showroot=false, layoutstyle=:dendrogram)
     nodedict = Dict{Any,Tuple{Float32,Float32}}()
-    _coord_postwalk!(nodedict, t, 0, [-1])
+    currdepth = showroot ? distance(tree) : 0
+    leafcount = [-1]
+    if layoutstyle == :dendrogram
+        coord_positions_dendrogram!(nodedict, tree, currdepth, leafcount)
+    else
+        throw(ArgumentError("""layoutstyle $layoutstyle not in $LAYOUTS"""))
+    end
     return nodedict
 end
 
-function makesegments(R, t)
+function coord_positions_dendrogram!(nodedict, node, curr_depth, leafcount)
+    if isleaf(node)
+        leafcount[begin] += 1
+        return nodedict[node] = (curr_depth, only(leafcount))
+    end
+    childs = map(children(node)) do child
+        coord_positions_dendrogram!(nodedict, child, distance(node) + curr_depth, leafcount)
+    end
+    height = mean(last.(childs))
+    return nodedict[node] = (curr_depth, height)
+end
+
+function makesegments(nodedict, tree; resolution=25, branchstyle=:square, rootsegment=false)
     segs = Vector{Vector{Tuple{Float32,Float32}}}()
-    # segs = Vector{Tuple{Float32, Float32}}()
-    for node in PreOrderDFS(t)
-        isleaf(node) && continue
-        for child in children(node)
-            # push!(segs, [R[node],  R[child], (NaN, NaN)])
-            px, py = R[node]
-            cx, cy = R[child]
-            push!(segs, [(px, py), [(px, ty) for ty in range(py, cy, length=25)]..., (cx, cy), (NaN, NaN)])
-            # push!(segs, R[node])
-            # push!(segs, R[child])
-            # push!(segs, (NaN, NaN))
-        end
+    if branchstyle == :square
+        make_square_segments!(segs, nodedict, tree; resolution)
+    elseif branchstyle == :straight
+        make_straight_segments!(segs, nodedict, tree)
+    else
+        throw(ArgumentError("""branchstyle $branchstyle not in $BRANCHTYPES"""))
     end
     return segs
 end
 
+function make_square_segments!(segs, nodedict, tree; resolution=25)
+    for node in PreOrderDFS(tree)
+        isleaf(node) && continue
+        for child in children(node)
+            px, py = nodedict[node]
+            cx, cy = nodedict[child]
+            push!(segs, [
+                (px, py),
+                [(px, ty) for ty in range(py, cy, length=resolution)]...,
+                (cx, cy),
+                (NaN, NaN),
+            ])
+        end
+    end
 end
+
+function make_straight_segments!(segs, nodedict, tree)
+    for node in PreOrderDFS(tree)
+        isleaf(node) && continue
+        for child in children(node)
+            px, py = nodedict[node]
+            cx, cy = nodedict[child]
+            push!(segs, [(px, py), (cx, cy), (NaN, NaN)])
+        end
+    end
+end
+
+include("./MakieRecipe.jl")
+@reexport using .MakieRecipe: treeplot, treeplot!
+using .MakieRecipe: theme_empty
+
+end # module
