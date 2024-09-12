@@ -1,8 +1,10 @@
-module MakieRecipe
+module TreePlotsMakieExt
 
-import ..TreePlots
+import TreePlots
+import TreePlots: treeplot, treeplot!
+
 import Makie
-using Makie: Point2f
+import Makie: Point2f
 
 
 Makie.@recipe(TreePlot, tree) do scene
@@ -124,9 +126,6 @@ function Makie.plot!(plt::TreePlot)
             Makie.shared_attributes(plt, Makie.Text)...,
         )
     end
-
-
-
 end
 
 theme_empty() = Makie.Theme(
