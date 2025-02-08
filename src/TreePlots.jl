@@ -1,8 +1,8 @@
 module TreePlots
 
-using Reexport
+using Reexport: Reexport
 using Statistics: mean
-using AbstractTrees: nodevalue, children, parent, PreOrderDFS, PostOrderDFS
+using AbstractTrees: nodevalue, children, PreOrderDFS
 # using Makie: Point2f
 
 const LAYOUTS = (:dendrogram, :cladogram, :radial)
@@ -13,6 +13,8 @@ export treeplot, treeplot!
 function treeplot end
 function treeplot! end
 
+# public distance, label
+
 """
     distance(node)
 
@@ -22,13 +24,24 @@ To extend `treeplot` to your type define method for `TreePlots.distance(node::Yo
 """
 distance() = 1
 distance(node) = 1
-isleaf(n) = (isempty ∘ children)(n)
-leafcount(t) = mapreduce(isleaf, +, PreOrderDFS(t))
+
+"""
+    label(node)
+
+return string typed value or description of node.
+
+Defaults to `string(nodevalue(node))`
+
+To extend `treeplot` to your type define method for `TreePlots.label(node::YourNodeType)`
+"""
 label(n) = string(nodevalue(n))
 
-function nodepositions(tree; showroot=false, layoutstyle=:dendrogram)
+isleaf(n) = (isempty ∘ children)(n)
+leafcount(t) = mapreduce(isleaf, +, PreOrderDFS(t))
+
+function nodepositions(tree; showroot = false, layoutstyle = :dendrogram)
     nodedict = Dict{Any,Tuple{Float64,Float64}}()
-    currdepth = showroot ? distance(tree) : 0.
+    currdepth = showroot ? distance(tree) : 0.0
     leafcount = [-1]
     if layoutstyle == :dendrogram
         coord_positions_dendrogram!(nodedict, tree, currdepth, leafcount)
@@ -73,7 +86,7 @@ function extend_tips!(nodecoords)
     end
 end
 
-function makesegments(nodedict, tree; resolution=25, branchstyle=:square)
+function makesegments(nodedict, tree; resolution = 25, branchstyle = :square)
     segs = Vector{Vector{Tuple{Float64,Float64}}}()
     if branchstyle == :square
         make_square_segments!(segs, nodedict, tree; resolution)
@@ -85,30 +98,36 @@ function makesegments(nodedict, tree; resolution=25, branchstyle=:square)
     return segs
 end
 
-function make_square_segments!(segs, nodedict, tree; resolution=25)
+function make_square_segments!(segs, nodedict, tree; resolution = 25)
     function segment_prewalk!(segs, node, parent_node)
         px, py = nodedict[parent_node]
         cx, cy = nodedict[node]
 
         if node == parent_node # isroot
-            push!(segs, [
-                (0.0, py),
-                [(tx, cy) for tx in range(0.0, cx, length=resolution)]...,
-                (cx, cy),
-                (NaN, NaN)
-            ])
+            push!(
+                segs,
+                [
+                    (0.0, py),
+                    [(tx, cy) for tx in range(0.0, cx, length = resolution)]...,
+                    (cx, cy),
+                    (NaN, NaN),
+                ],
+            )
         else
-            push!(segs, [
-                (px, py),
-                [(px, ty) for ty in range(py, cy, length=resolution)]...,
-                (cx, cy),
-                (NaN, NaN),
-            ])
+            push!(
+                segs,
+                [
+                    (px, py),
+                    [(px, ty) for ty in range(py, cy, length = resolution)]...,
+                    (cx, cy),
+                    (NaN, NaN),
+                ],
+            )
         end
 
-        if !isleaf(node) 
+        if !isleaf(node)
             for c in children(node)
-                segment_prewalk!(segs, c, node) 
+                segment_prewalk!(segs, c, node)
             end
         end
     end
@@ -128,9 +147,9 @@ function make_straight_segments!(segs, nodedict, tree)
             push!(segs, [(px, py), (cx, cy), (NaN, NaN)])
         end
 
-        if !isleaf(node) 
+        if !isleaf(node)
             for c in children(node)
-                segment_prewalk!(segs, c, node) 
+                segment_prewalk!(segs, c, node)
             end
         end
     end
@@ -140,10 +159,10 @@ end
 
 function tipannotations(nodedict)
     tipnames = String[]
-    tippositions = Tuple{Float32, Float32}[]
+    tippositions = Tuple{Float32,Float32}[]
     for (k, v) in nodedict
         isleaf(k) || continue
-        push!(tipnames, (TreePlots.label(k)))
+        push!(tipnames, (label(k)))
         push!(tippositions, v)
     end
     tippositions, tipnames
