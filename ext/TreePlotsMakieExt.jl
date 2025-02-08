@@ -9,25 +9,27 @@ import Makie: Point2f
 
 Makie.@recipe(TreePlot, tree) do scene
     attr = Makie.Attributes(
-        showroot=false,
-        layoutstyle=:dendrogram,
-        branchstyle=:square,
-        ignorebranchlengths=false, linevisible=true,
-        linecolor=@something(Makie.theme(scene, :color), :black),
-        linewidth=@something(Makie.theme(scene, :linewidth), 1),
-        linecolormap=@something(Makie.theme(scene, :colormap), :viridis),
-        branch_point_resolution=25, markervisible=false,
-        markercolor=@something(Makie.theme(scene, :color), :black),
-        markersize=@something(Makie.theme(scene, :markersize), 5),
-        markercolormap=@something(Makie.theme(scene, :colormap), :viridis),
-        usemaxdepth=false,
-        tipannotationsvisible=true,
-        tipannotations=nothing,
-        tipfontsize=9.0f0,
-        leafdata=nothing,
-        openangle=0,
-        tipalign=@something(Makie.theme(scene, :align), (:left, :center)),
-        tipannotationoffset=@something(Makie.theme(scene, :offset), (3.0f0, 0.0f0)),
+        showroot = false,
+        layoutstyle = :dendrogram,
+        branchstyle = :square,
+        ignorebranchlengths = false,
+        linevisible = true,
+        linecolor = @something(Makie.theme(scene, :color), :black),
+        linewidth = @something(Makie.theme(scene, :linewidth), 1),
+        linecolormap = @something(Makie.theme(scene, :colormap), :viridis),
+        branch_point_resolution = 25,
+        markervisible = false,
+        markercolor = @something(Makie.theme(scene, :color), :black),
+        markersize = @something(Makie.theme(scene, :markersize), 5),
+        markercolormap = @something(Makie.theme(scene, :colormap), :viridis),
+        usemaxdepth = false,
+        tipannotationsvisible = true,
+        tipannotations = nothing,
+        tipfontsize = 9.0f0,
+        leafdata = nothing,
+        openangle = 0,
+        tipalign = @something(Makie.theme(scene, :align), (:left, :center)),
+        tipannotationoffset = @something(Makie.theme(scene, :offset), (3.0f0, 0.0f0)),
     )
     Makie.MakieCore.generic_plot_attributes!(attr)
     return Makie.MakieCore.colormap_attributes!(attr, Makie.theme(scene, :colormap))
@@ -38,35 +40,49 @@ function Makie.plot!(plt::TreePlot)
     toangle(y) = (y / (nleaves)) * (2π - (plt.openangle[] % 2pi))
 
     ## Setup tree layout
-    nodecoords = TreePlots.nodepositions(plt.tree[]; showroot=plt.showroot[], layoutstyle=plt.layoutstyle[])
+    nodecoords = TreePlots.nodepositions(
+        plt.tree[];
+        showroot = plt.showroot[],
+        layoutstyle = plt.layoutstyle[],
+    )
     maxleafposition = argmax(x -> x[1], values(nodecoords))
-    segs = TreePlots.makesegments(nodecoords, plt.tree[];
-        resolution=plt.branch_point_resolution[],
-        branchstyle=plt.branchstyle[]
+    segs = TreePlots.makesegments(
+        nodecoords,
+        plt.tree[];
+        resolution = plt.branch_point_resolution[],
+        branchstyle = plt.branchstyle[],
     )
     # setup linecolor
     if plt.linecolor[] isa Union{AbstractVector,AbstractRange}
-        length(plt.linecolor[]) == length(segs) ||
-            throw(ArgumentError("""length of linecolor ($(length(plt.linecolor[]))) must match number of branches in tree ($(length(segs)))"""))
-        plt.linecolor[] = repeat(plt.linecolor[], inner=length(first(segs)))
+        length(plt.linecolor[]) == length(segs) || throw(
+            ArgumentError(
+                """length of linecolor ($(length(plt.linecolor[]))) must match number of branches in tree ($(length(segs)))""",
+            ),
+        )
+        plt.linecolor[] = repeat(plt.linecolor[], inner = length(first(segs)))
     end
     # setup linewidth
     if plt.linewidth[] isa Union{AbstractVector,AbstractRange}
-        length(plt.linewidth[]) == length(segs) ||
-            throw(ArgumentError("""length of linewidth ($(length(plt.linewidth[]))) must match number of branches in tree ($(length(segs)))"""))
-        plt.linewidth[] = repeat(plt.linewidth[], inner=length(first(segs)))
+        length(plt.linewidth[]) == length(segs) || throw(
+            ArgumentError(
+                """length of linewidth ($(length(plt.linewidth[]))) must match number of branches in tree ($(length(segs)))""",
+            ),
+        )
+        plt.linewidth[] = repeat(plt.linewidth[], inner = length(first(segs)))
     end
-    
-    # modify all points if axis is polar 
+
+    # modify all points if axis is polar
     if occursin("Polar", string(plt.transformation.transform_func[]))
         segs = map(segs) do seg
             [(toangle(y), x) for (x, y) in seg]
         end
     end
 
-    Makie.lines!(plt, reduce(vcat, segs);
-        color=plt.linecolor,
-        linewidth=plt.linewidth,
+    Makie.lines!(
+        plt,
+        reduce(vcat, segs);
+        color = plt.linecolor,
+        linewidth = plt.linewidth,
         Makie.shared_attributes(plt, Makie.Lines)...,
     )
 
@@ -77,7 +93,10 @@ function Makie.plot!(plt::TreePlot)
     if plt.usemaxdepth[]
         tippositions_end = Point2f[]
         for pos in tippositions_start
-            push!(tippositions_end, (maxleafposition[1] + 0.01 * maxleafposition[1], pos[2]))
+            push!(
+                tippositions_end,
+                (maxleafposition[1] + 0.01 * maxleafposition[1], pos[2]),
+            )
         end
 
         linestomaxdepth = Point2f[]
@@ -93,10 +112,7 @@ function Makie.plot!(plt::TreePlot)
             end
         end
 
-        Makie.lines!(plt, linestomaxdepth;
-            color=(:grey, 0.1),
-            linewidth=0.5,
-        )
+        Makie.lines!(plt, linestomaxdepth; color = (:grey, 0.1), linewidth = 0.5)
     end
 
 
@@ -118,44 +134,44 @@ function Makie.plot!(plt::TreePlot)
 
         Makie.text!(
             tippositions;
-            text=tiplabels,
-            fontsize=plt.tipfontsize,
-            align=plt.tipalign,
-            offset=plt.tipannotationoffset,
-            rotation=tiprotations,
+            text = tiplabels,
+            fontsize = plt.tipfontsize,
+            align = plt.tipalign,
+            offset = plt.tipannotationoffset,
+            rotation = tiprotations,
             Makie.shared_attributes(plt, Makie.Text)...,
         )
     end
 end
 
 theme_empty() = Makie.Theme(
-    Axis=(;
-        topspinevisible=false,
-        rightspinevisible=false,
-        leftspinevisible=false,
-        bottomspinevisible=false,
-        xticklabelsvisible=false,
-        xgridvisible=false,
-        xminorgridvisible=false,
-        xticksvisible=false,
-        xminorticksvisible=false,
-        xlabelvisible=false,
-        yticklabelsvisible=false,
-        ygridvisible=false,
-        yminorgridvisible=false,
-        yticksvisible=false,
-        yminorticksvisible=false,
-        ylabelvisible=false,
+    Axis = (;
+        topspinevisible = false,
+        rightspinevisible = false,
+        leftspinevisible = false,
+        bottomspinevisible = false,
+        xticklabelsvisible = false,
+        xgridvisible = false,
+        xminorgridvisible = false,
+        xticksvisible = false,
+        xminorticksvisible = false,
+        xlabelvisible = false,
+        yticklabelsvisible = false,
+        ygridvisible = false,
+        yminorgridvisible = false,
+        yticksvisible = false,
+        yminorticksvisible = false,
+        ylabelvisible = false,
     ),
-    PolarAxis=(;
-        spinevisible=false,
-        rticklabelsvisible=false,
-        rgridvisible=false,
-        rminorgridvisible=false,
-        thetaticklabelsvisible=false,
-        thetagridvisible=false,
-        thetaminorgridvisible=false,
-    )
+    PolarAxis = (;
+        spinevisible = false,
+        rticklabelsvisible = false,
+        rgridvisible = false,
+        rminorgridvisible = false,
+        thetaticklabelsvisible = false,
+        thetagridvisible = false,
+        thetaminorgridvisible = false,
+    ),
 )
 
 end

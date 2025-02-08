@@ -1,0 +1,20 @@
+# Changes here will be overwritten by Copier
+AddCopierCI: false
+AnswerStrategy: recommended-ask
+Authors: Benjamin Doran and collaborators
+CheckExplicitImports: true
+CodeOfConductContact: Benjamin Doran
+ConfigIndentation: 2
+ExplicitImportsChecklist: exclude_all_qualified_accesses_are_public
+JuliaIndentation: 4
+JuliaMinVersion: '1.9'
+License: MIT
+LicenseCopyrightHolders: Benjamin Doran and collaborators
+MarkdownIndentation: 2
+PackageName: TreePlots
+PackageOwner: BenjaminDoran
+PackageUUID: 523fa316-3eda-45c7-ad2f-0d13a1dc3d77
+RunJuliaNightlyOnCI: false
+UseCirrusCI: false
+_commit: v0.14.1
+_src_path: https://github.com/JuliaBesties/BestieTemplate.jl

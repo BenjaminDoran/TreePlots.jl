@@ -1,4 +1,5 @@
 module TreePlotsNewickTreeExt
+
 import TreePlots, NewickTree
 
 TreePlots.distance(n::NewickTree.Node) = begin
