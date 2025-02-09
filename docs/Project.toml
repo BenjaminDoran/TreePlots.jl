@@ -1,3 +1,13 @@
 [deps]
+ArgMacros = "dbc42088-9de8-42a0-8ec8-2cd114e1ea3e"
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+DocumenterVitepress = "4710194d-e776-4893-9690-8d956a29c365"
+Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
+NewickTree = "b0a14db8-6308-4ebc-8917-f72cd81f5094"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+TimerOutputs = "a759f4b9-e2f1-59dc-863e-4aeb61b1ea8f"
 TreePlots = "523fa316-3eda-45c7-ad2f-0d13a1dc3d77"
+
+[sources]
+TreePlots = {path = ".."}

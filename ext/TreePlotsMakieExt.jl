@@ -6,7 +6,6 @@ import TreePlots: treeplot, treeplot!
 import Makie
 import Makie: Point2f
 
-
 Makie.@recipe(TreePlot, tree) do scene
     attr = Makie.Attributes(
         showroot = false,

@@ -134,8 +134,11 @@ Here is how you do it:
    1. Press `]` to enter `pkg` mode
    1. Run `pkg> dev .` to use the development version of your package
    1. Press backspace to leave `pkg` mode
-1. Run `julia> using LiveServer`
-1. Run `julia> servedocs()`
+1. Exit the julia repl
+   1. Run `exit()`
+1. Enter the docs folder `cd docs`.
+1. Run `make liveserver` to start docs in live mode, 
+   The documentation will update after saving a file with changes
 
 ## Making a new release
 
