@@ -1,7 +1,7 @@
 name = "TreePlots"
 uuid = "523fa316-3eda-45c7-ad2f-0d13a1dc3d77"
 authors = ["Benjamin Doran and collaborators"]
-version = "0.0.1-dev"
+version = "0.1.0"
 
 [deps]
 AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
