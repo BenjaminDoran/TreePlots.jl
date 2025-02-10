@@ -3,6 +3,8 @@ import Pkg
 Pkg.activate(@__DIR__)
 Pkg.instantiate()
 
+cd(@__DIR__)
+
 using TimerOutputs
 using ArgMacros
 import LiveServer
@@ -66,8 +68,15 @@ function main(ARGS)
 
     ## Setup tutorials menu
     tutorials_menu =
-        "Tutorials" => [joinpath("tutorials", file) for file in readdir(TUTORIALS_OUT)]
-    gallery_menu = "Gallery" => [joinpath("gallery", file) for file in readdir(GALLERY_OUT)]
+        "Tutorials" => [
+            joinpath("tutorials", file) for
+            file in readdir(TUTORIALS_OUT) if last(splitext(file)) == ".md"
+        ]
+    gallery_menu =
+        "Gallery" => [
+            joinpath("gallery", file) for
+            file in readdir(GALLERY_OUT) if last(splitext(file)) == ".md"
+        ]
 
     numbered_pages = [
         file for file in readdir(joinpath(@__DIR__, "src")) if
