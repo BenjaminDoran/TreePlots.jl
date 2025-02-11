@@ -105,7 +105,7 @@ function main(ARGS)
     )
 
     if !args.liveserver
-        deploydocs(; repo = "github.com/$ORG_NAME/$PACKAGE_NAME", devbranch = "dev")
+        deploydocs(; repo = "github.com/$ORG_NAME/$PACKAGE_NAME")
     end
 end
 
