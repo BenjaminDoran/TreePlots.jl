@@ -1,6 +1,6 @@
 #!/usr/bin/env julia
 
-#= 
+#=
 gratefully stolen from how Ferrite.jl set up their docs
 https://github.com/Ferrite-FEM/Ferrite.jl
 =#
@@ -23,14 +23,14 @@ LiveServer.servedocs(;
     foldername = joinpath(repo_root, "docs"),
     # Extra source folder to watch for changes
     include_dirs = String[
-        # Watch the src folder so docstrings can be Revise'd
-        joinpath(repo_root, "src"),
-    ],
+    # Watch the src folder so docstrings can be Revise'd
+        joinpath(repo_root, "src"),],
     skip_dirs = String[
         # Skip the folder where Literate.jl output is written. This is needed
         # to avoid infinite loops where running make.jl updates watched files,
         # which then triggers a new run of make.jl etc.
         joinpath(repo_root, "docs/src/tutorials"),
+        joinpath(repo_root, "docs/src/gallery"),
     ],
     include_files = String[
         joinpath(repo_root, "docs/generate.jl"),
@@ -39,7 +39,5 @@ LiveServer.servedocs(;
         joinpath(repo_root, "docs/changelog.jl"),
         joinpath(repo_root, "CHANGELOG.md"),
     ],
-    skip_files = String[
-        joinpath(repo_root, "docs/src/changelog.md"),
-    ],
+    skip_files = String[joinpath(repo_root, "docs/src/changelog.md"),],
 )

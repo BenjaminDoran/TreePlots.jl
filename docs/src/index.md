@@ -4,8 +4,6 @@ CurrentModule = TreePlots
 
 # TreePlots
 
-
-
 Documentation for [TreePlots](https://github.com/BenjaminDoran/TreePlots.jl).
 
 This is a package that aims to provide generic plotting recipes for tree like data structures.
@@ -15,11 +13,9 @@ i.e. has `AbstractTrees.children(YourType)` defined.
 Optionally, `TreePlots.distance(YourType)` and `TreePlots.label(YourType)` can be defined to allow plotting trees
 with variable distances between children and parent nodes and pretty printing of each node in the tree respectively.
 
-Currently, we only provide `Makie.jl` backends, but are interested in contributions for recipes for `Plots.jl` and `TidyPlots.jl`. 
-As well as any other backends or custom tree structures that don't work automatically. 
+Currently, we only provide `Makie.jl` backends, but are interested in contributions for recipes for `Plots.jl` and `TidyPlots.jl`.
+As well as any other backends or custom tree structures that don't work automatically.
 See the `ext` folder for example extensions.
-
-
 
 ## Installation
 

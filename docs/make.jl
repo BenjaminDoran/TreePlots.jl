@@ -3,6 +3,8 @@ import Pkg
 Pkg.activate(@__DIR__)
 Pkg.instantiate()
 
+cd(@__DIR__)
+
 using TimerOutputs
 using ArgMacros
 import LiveServer
@@ -67,11 +69,13 @@ function main(ARGS)
     ## Setup tutorials menu
     tutorials_menu =
         "Tutorials" => [
-           joinpath("tutorials", file) for file in readdir(TUTORIALS_OUT)
+            joinpath("tutorials", file) for
+            file in readdir(TUTORIALS_OUT) if last(splitext(file)) == ".md"
         ]
     gallery_menu =
         "Gallery" => [
-            joinpath("gallery", file) for file in readdir(GALLERY_OUT)
+            joinpath("gallery", file) for
+            file in readdir(GALLERY_OUT) if last(splitext(file)) == ".md"
         ]
 
     numbered_pages = [
@@ -179,7 +183,8 @@ function _create_documenter_changelog()
     """
     content = replace(
         content,
-        last_sentence_before_content => last_sentence_before_content * "\n\n" * contents_block,
+        last_sentence_before_content =>
+            last_sentence_before_content * "\n\n" * contents_block,
     )
     # Remove trailing lines
     content = strip(content) * "\n"
@@ -205,8 +210,10 @@ function _fix_links()
     for l in sort!(collect(github_links); by = first)
         println(io, l[1], ": ", l[2])
     end
-    content =
-        replace(content, r"<!-- GitHub pull request/issue links -->.*$"ms => String(take!(io)))
+    content = replace(
+        content,
+        r"<!-- GitHub pull request/issue links -->.*$"ms => String(take!(io)),
+    )
     write(changelogfile, content)
 end
 

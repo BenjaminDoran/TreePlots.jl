@@ -137,7 +137,7 @@ Here is how you do it:
 1. Exit the julia repl
    1. Run `exit()`
 1. Enter the docs folder `cd docs`.
-1. Run `make liveserver` to start docs in live mode, 
+1. Run `make liveserver` to start docs in live mode,
    The documentation will update after saving a file with changes
 
 ## Making a new release
